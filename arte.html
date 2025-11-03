@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Congresso da Família - Moldura</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #222;
+    }
+
+    canvas {
+      display: block;
+      margin: 20px auto;
+      max-width: 100%;
+      height: auto;
+      border: 2px solid #ccc;
+    }
+
+    input[type="file"] {
+      margin: 10px;
+      padding: 10px;
+    }
+
+    button {
+      background: #007b5e;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background: #005f47;
+    }
+  </style>
+</head>
+<body>
+  <h1>Congresso Brasileiro da Família 💚</h1>
+  <p>Envie sua foto e veja como fica com a moldura!</p>
+
+  <input type="file" id="fotoInput" accept="image/*">
+  <canvas id="canvas" width="1086" height="768"></canvas>
+  <br>
+  <button id="downloadBtn">Baixar imagem final</button>
+
+  <script>
+    const fotoInput = document.getElementById('fotoInput');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    const moldura = new Image();
+    moldura.src = 'moldura.jpeg'; // certifique-se de que o arquivo está na mesma pasta
+
+    fotoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const foto = new Image();
+        foto.onload = function() {
+          // Preenche o fundo com branco
+          ctx.fillStyle = "#fff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Ajusta a foto para caber na área preta
+          const scale = Math.min(canvas.width / foto.width, canvas.height / foto.height);
+          const x = (canvas.width / 2) - (foto.width / 2) * scale;
+          const y = (canvas.height / 2) - (foto.height / 2) * scale;
+          ctx.drawImage(foto, x, y, foto.width * scale, foto.height * scale);
+
+          // Desenha a moldura por cima
+          ctx.drawImage(moldura, 0, 0, canvas.width, canvas.height);
+        };
+        foto.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'minha-foto-com-moldura.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  </script>
+</body>
+</html>
